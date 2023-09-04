@@ -1,0 +1,70 @@
+{% extends "graph/base.html" %}
+{% load bootstrap4 %}
+{% block content %}
+
+    <!-- Graph -->
+    <article class="media content-section">
+        <div class="media-body">
+            <div class="container mt-4">
+                <canvas id="lineChart"></canvas>
+            </div>            
+        </div>
+    </article>
+
+    <!-- User Input -->
+    <article class="media content-section">
+        <div class="media-body">
+        <div class="article-metadata">
+            <h2><a class="article-title">Add Data</a></h2>
+        </div>
+            <p class="article-content">...</p>
+        </div>
+    </article>
+
+    <script>
+        // JavaScript code to initialize Chart.js and create the line chart
+        var ctx = document.getElementById('lineChart').getContext('2d');
+        var labels = JSON.parse('{{ data.labels }}');
+        var weight_data = JSON.parse('{{ data.weight }}');
+        var calorie_data = JSON.parse('{{ data.calories }}');
+        var protein_data = JSON.parse('{{ data.protein }}');
+
+        var data = {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Protein',
+                    data: protein_data, 
+                    borderColor: '#36A2EB',
+                    backgroundColor: '#9BD0F5',
+                    borderWidth: 5
+                },
+                {
+                    label: 'Calories',
+                    data: calorie_data,
+                    borderColor: '#FF6384',
+                    backgroundColor: '#FFB1C1',
+                    borderWidth: 5
+                },
+                {
+                    label: 'Weight',
+                    data: weight_data,
+                    borderColor: '#3dc24f',
+                    backgroundColor: '#93ffa5',
+                    borderWidth: 5
+                }
+            ]
+        };
+
+        var options = {
+
+        };
+
+        var lineChart = new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: options
+        });
+    </script>
+
+{% endblock content %}
