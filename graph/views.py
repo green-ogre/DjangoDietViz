@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from .forms import DataForm
+from feed.models import Post
 
 DATA_CHAR_SPLICE = '#'
 
@@ -15,11 +16,24 @@ def graph_view(request):
         data_form = DataForm(request.POST)
         if data_form.is_valid():
 
-            current_user.profile.weight += DATA_CHAR_SPLICE + str(data_form.cleaned_data['weight'])
-            current_user.profile.protein += DATA_CHAR_SPLICE + str(data_form.cleaned_data['protein'])
-            current_user.profile.calories += DATA_CHAR_SPLICE + str(data_form.cleaned_data['calories'])
+            weight = str(data_form.cleaned_data['weight'])
+            protein = data_form.cleaned_data['protein']
+            calories = data_form.cleaned_data['calories']
+
+            current_user.profile.weight += DATA_CHAR_SPLICE + str(weight)
+            current_user.profile.protein += DATA_CHAR_SPLICE + str(protein)
+            current_user.profile.calories += DATA_CHAR_SPLICE + str(calories)
 
             current_user.save()
+
+            post_content = data_form.cleaned_data['message']
+            post_day = len(current_user.profile.calories.split(DATA_CHAR_SPLICE))
+            post_data = {
+                'weight': weight,
+                'protein': protein,
+                'calories': calories
+            }
+            Post.objects.create(content=post_content, day=post_day, data=post_data, author=current_user)
 
             messages.success(request, f'You successfully added data!')
             return redirect('graph-view')
