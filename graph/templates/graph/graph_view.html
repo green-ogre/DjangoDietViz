@@ -1,5 +1,6 @@
 {% extends "graph/base.html" %}
 {% load bootstrap4 %}
+{% load crispy_forms_tags %}
 {% block content %}
 
     <!-- Graph -->
@@ -14,20 +15,26 @@
     <!-- User Input -->
     <article class="media content-section">
         <div class="media-body">
-        <div class="article-metadata">
-            <h2><a class="article-title">Add Data</a></h2>
-        </div>
-            <p class="article-content">...</p>
+            <form method="POST">
+                {% csrf_token %}
+                <fieldset class="form-group">
+                    <legend class="border-bottom mb-4">Input Todays Data</legend>
+                    {{ data_form|crispy }}
+                </fieldset>
+                <div class="form-group">
+                    <button class="btn btn-outline-info" type="submit">Add</button>
+                </div>
+            </form>
         </div>
     </article>
 
     <script>
         // JavaScript code to initialize Chart.js and create the line chart
         var ctx = document.getElementById('lineChart').getContext('2d');
-        var labels = JSON.parse('{{ data.labels }}');
-        var weight_data = JSON.parse('{{ data.weight }}');
-        var calorie_data = JSON.parse('{{ data.calories }}');
-        var protein_data = JSON.parse('{{ data.protein }}');
+        var labels = JSON.parse('{{ labels }}');
+        var weight_data = JSON.parse('{{ weight }}');
+        var calorie_data = JSON.parse('{{ calories }}');
+        var protein_data = JSON.parse('{{ protein }}');
 
         var data = {
             labels: labels,
@@ -40,7 +47,7 @@
                     borderWidth: 5
                 },
                 {
-                    label: 'Calories',
+                    label: 'Calories (in tens)',
                     data: calorie_data,
                     borderColor: '#FF6384',
                     backgroundColor: '#FFB1C1',

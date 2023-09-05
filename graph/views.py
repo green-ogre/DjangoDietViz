@@ -1,30 +1,57 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import JsonResponse
-from .models import GraphData
+from django.contrib import messages
+from .forms import DataForm
+
+DATA_CHAR_SPLICE = '#'
+
 
 @login_required
 def graph_view(request):
-    g_data = GraphData.objects.first()
+    current_user = request.user
 
-    weight_data = [float(x) for x in g_data.weight.split("#")]
-    protein_data = [float(x) for x in g_data.protein.split("#")]
-    calorie_data = [float(x) for x in g_data.calories.split("#")]
-    labels = [x for x in range(1, len(weight_data))]
+    if request.method == 'POST':
+        data_form = DataForm(request.POST)
+        if data_form.is_valid():
+
+            current_user.profile.weight += DATA_CHAR_SPLICE + str(data_form.cleaned_data['weight'])
+            current_user.profile.protein += DATA_CHAR_SPLICE + str(data_form.cleaned_data['protein'])
+            current_user.profile.calories += DATA_CHAR_SPLICE + str(data_form.cleaned_data['calories'])
+
+            current_user.save()
+
+            messages.success(request, f'You successfully added data!')
+            return redirect('graph-view')
+    else:
+        data_form = DataForm()
+
+    if current_user.profile.weight == '':
+        weight_data = [0]
+        protein_data = [0]
+        calorie_data = [0]
+    else:
+        weight_data = [float(x) for x in current_user.profile.weight.split(DATA_CHAR_SPLICE)]
+        protein_data = [float(x) for x in current_user.profile.protein.split(DATA_CHAR_SPLICE)]
+        calorie_data = [float(x) / 10 for x in current_user.profile.calories.split(DATA_CHAR_SPLICE)]
+    labels = [x for x in range(1, len(weight_data) + 1)]
 
     context = {
+        'title': current_user.username,
         'labels': labels,
         'weight': weight_data,
         'protein': protein_data,
         'calories': calorie_data,
+        'data_form': data_form,
     }
 
-    return render(request, 'graph/graph_view.html', { 'data': context, 'title': User.username })
+    return render(request, 'graph/graph_view.html', context)
+
 
 @login_required
 def about(request):
     return render(request, 'graph/about.html', {'title': 'About'})
+
 
 @login_required
 def help(request):
