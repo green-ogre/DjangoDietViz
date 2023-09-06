@@ -148,5 +148,5 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
-EMAIL_USE_SSL = True  # Use SSL for secure connection
+EMAIL_USE_SSL = True
 EMAIL_CA_FILE = '/path/to/certifi/cacert.pem'
